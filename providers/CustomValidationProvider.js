@@ -1,5 +1,3 @@
-'use strict'
-
 const { ServiceProvider } = require('@adonisjs/fold')
 
 class CustomValidationProvider extends ServiceProvider {
@@ -16,7 +14,9 @@ class CustomValidationProvider extends ServiceProvider {
 
     const [table, column] = args
 
-    const row = await Database.table(table).where(column, value).first()
+    const row = await Database.table(table)
+      .where(column, value)
+      .first()
     if (!row) {
       throw message
     }

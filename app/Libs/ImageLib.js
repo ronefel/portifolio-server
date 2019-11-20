@@ -1,25 +1,13 @@
 const fs = use('fs')
 const Helpers = use('Helpers')
-const readFile = Helpers.promisify(fs.readFile)
 const deleteFile = Helpers.promisify(fs.unlink)
 const Jimp = use('jimp')
 
-/** @type {import('@adonisjs/framework/src/Env')} */
-const Env = use('Env')
-
-const path = Helpers.appRoot(`${Env.get('IMAGES_PATH')}`)
-
 class ImageLib {
-  static async processImage(file) {
-    const optimizeAndResize = async img => {
-      await img.resize(1080, Jimp.AUTO)
-      await img.quality(90)
-      return img
-    }
-
+  static async readImage(file) {
     const image = await Jimp.read(file)
       .then(img => {
-        return optimizeAndResize(img)
+        return img
       })
       .catch(() => {
         return false
@@ -27,7 +15,20 @@ class ImageLib {
     return image
   }
 
-  static async storeImage(jimpImage, name) {
+  static async processImage(img) {
+    const { width, height } = img.bitmap
+    const mode = Jimp.RESIZE_HERMITE
+    if (width > 1080) {
+      await img.resize(1080, Jimp.AUTO, mode)
+    }
+    if (height > 720) {
+      await img.resize(Jimp.AUTO, 720, mode)
+    }
+    await img.quality(90)
+    return img
+  }
+
+  static async storeImage(jimpImage, path, name) {
     const image = await jimpImage
       .writeAsync(`${path}/${name}`)
       .then(img => {
@@ -42,21 +43,7 @@ class ImageLib {
     return false
   }
 
-  static async readImage(name) {
-    return readFile(`${path}/${name}`)
-      .then(image => {
-        return image
-      })
-      .catch(() => {
-        return false
-      })
-  }
-
-  static getPath(name) {
-    return `${path}/${name}`
-  }
-
-  static async destroyImage(name) {
+  static async destroyImage(path, name) {
     return deleteFile(`${path}/${name}`)
       .then(() => {
         return true

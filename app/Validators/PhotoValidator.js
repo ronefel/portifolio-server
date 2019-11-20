@@ -1,4 +1,4 @@
-class PhotoValidation {
+class PhotoValidator {
   get validateAll() {
     return true
   }
@@ -15,4 +15,4 @@ class PhotoValidation {
   // }
 }
 
-module.exports = PhotoValidation
+module.exports = PhotoValidator

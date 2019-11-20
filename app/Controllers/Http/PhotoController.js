@@ -4,6 +4,11 @@ const ImageLib = use('App/Libs/ImageLib')
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('App/Models/Photo')
 
+const Helpers = use('Helpers')
+const Env = use('Env')
+
+const IMAGES_PATH = Helpers.appRoot(`${Env.get('IMAGES_PATH')}`)
+
 class PhotoController {
   async index() {
     const models = await Model.all()
@@ -36,7 +41,11 @@ class PhotoController {
     const model = await Model.create(data)
 
     // salva a imagem no servidor
-    const nameImageStored = await ImageLib.storeImage(jimpImage, name)
+    const nameImageStored = await ImageLib.storeImage(
+      jimpImage,
+      IMAGES_PATH,
+      name
+    )
     if (!nameImageStored) {
       // remove os dados do banco
       await model.delete()
@@ -50,11 +59,12 @@ class PhotoController {
   }
 
   async show({ params, response }) {
-    return response.download(ImageLib.getPath(params.name))
+    return response.download(`${IMAGES_PATH}/${params.name}`)
   }
 
   async destroy({ params }) {
     const model = await Model.findOrFail(params.id)
+    await ImageLib.destroyImage(IMAGES_PATH, model.name)
     await model.delete()
   }
 }
