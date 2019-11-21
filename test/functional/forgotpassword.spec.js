@@ -7,28 +7,25 @@ const Hash = use('Hash')
 const Mail = use('Mail')
 const Database = use('Database')
 
-/** @type {import('@adonisjs/lucid/src/Lucid/Model')} */
-const User = use('App/Models/User')
-
 /** @type {import('@adonisjs/lucid/src/Factory')} */
 const Factory = use('Factory')
 
 trait('Test/ApiClient')
 trait('DatabaseTransactions')
 
-test('should send an email with reset password instructions', async ({ assert, client }) => {
+test('should send an email with reset password instructions', async ({
+  assert,
+  client
+}) => {
   Mail.fake()
   const email = 'ronefel@hotmail.com'
 
-  const user = await Factory
-    .model('App/Models/User')
-    .create({ email })
+  const user = await Factory.model('App/Models/User').create({ email })
 
   const response = await client
     .post('/forgot')
     .send({ email })
     .end()
-
   response.assertStatus(204)
 
   const token = await user.tokens().first()
@@ -44,7 +41,6 @@ test('should send an email with reset password instructions', async ({ assert, c
 })
 
 test('should be able to reset password', async ({ assert, client }) => {
-
   const email = 'ronefel@hotmail.com'
 
   const user = await Factory.model('App/Models/User').create({ email })
@@ -59,17 +55,17 @@ test('should be able to reset password', async ({ assert, client }) => {
       password: '123456'
     })
     .end()
-
   response.assertStatus(204)
 
   await user.reload()
   const checkPassword = await Hash.verify('123456', user.password)
 
   assert.isTrue(checkPassword)
-
 })
 
-test('cannot reset password after 15m of forgot password request', async ({ assert, client }) => {
+test('cannot reset password after 15m of forgot password request', async ({
+  client
+}) => {
   const email = 'ronefel@hotmail.com'
 
   const user = await Factory.model('App/Models/User').create({ email })
@@ -79,9 +75,7 @@ test('cannot reset password after 15m of forgot password request', async ({ asse
 
   const dateWithSub = format(subMinutes(new Date(), 16), 'yyyy-MM-dd HH:mm:ss')
 
-  console.log(dateWithSub)
-  await Database
-    .table('tokens')
+  await Database.table('tokens')
     .where('token', userToken.token)
     .update('created_at', dateWithSub)
 
@@ -94,6 +88,5 @@ test('cannot reset password after 15m of forgot password request', async ({ asse
       password: '123456'
     })
     .end()
-
   response.assertStatus(400)
 })

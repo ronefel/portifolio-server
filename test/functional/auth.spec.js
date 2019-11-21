@@ -21,7 +21,7 @@ test('should return JWT token when session created', async ({
     .post('/authenticate')
     .send(payload)
     .end()
-
   response.assertStatus(200)
+
   assert.exists(response.body.token)
 })

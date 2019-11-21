@@ -5,16 +5,10 @@ Route.post('authenticate', 'AuthController.authenticate')
 Route.post('/forgot', 'ForgotPasswordController.store')
 Route.post('/reset', 'ResetPasswordController.store')
 
-Route.resource('galleries', 'GalleryController').apiOnly()
-
-Route.resource('photos', 'PhotoController')
-  .apiOnly()
-  .except(['show', 'update'])
-  .validator(new Map([[['photos.store'], ['PhotoValidator']]]))
+Route.get('/avatar/:avatar', 'UserController.avatar')
+Route.get('/galleries/:id', 'GalleryController.show')
 Route.get('/images/:name', 'PhotoController.show')
-
-// rota protegida exemplo
-Route.get('/app', 'AppController.index').middleware(['auth'])
+Route.post('/register', 'UserController.register').validator('UserValidator')
 
 // grupo de rotas protegidas
 Route.group(() => {
@@ -26,4 +20,13 @@ Route.group(() => {
         [['users.update'], ['UpdateUserValidator']]
       ])
     )
+
+  Route.resource('galleries', 'GalleryController')
+    .apiOnly()
+    .except('show')
+
+  Route.resource('photos', 'PhotoController')
+    .apiOnly()
+    .except(['show', 'update'])
+    .validator(new Map([[['photos.store'], ['PhotoValidator']]]))
 }).middleware(['auth'])
