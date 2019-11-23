@@ -10,12 +10,23 @@ const Helpers = use('Helpers')
 const TMP_USER = Helpers.tmpPath('user')
 
 class UserController {
-  async index() {
+  async index({ auth, response }) {
+    const user = await auth.getUser()
+    if (!user.is_admin) {
+      return response.status(401).json()
+    }
     const models = await Model.all()
     return models
   }
 
-  async store({ request, response }) {
+  async store({ auth, request, response }) {
+    let image = null
+
+    const user = await auth.getUser()
+    if (!user.is_admin) {
+      return response.status(401).json()
+    }
+
     const data = this.getRequestData(request)
 
     const { avatarImage } = data
@@ -26,18 +37,21 @@ class UserController {
 
     if (avatarImage) {
       // lê a imagem
-      const image = await ImageLib.readImage(avatarImage.tmpPath)
-      if (!image) {
+      try {
+        image = await ImageLib.readImage(avatarImage.tmpPath)
+      } catch (err) {
         return response.status(400).json({
-          message: 'Error to read avatar image.',
+          message: `Error to read avatar image: ${err}`,
           name: 'error',
           status: 400
         })
       }
       // salva a imagem em um diretório
-      if (!(await this.saveAvatar(image, data.avatar))) {
+      try {
+        await this.saveAvatar(image, data.avatar)
+      } catch (err) {
         return response.status(500).json({
-          message: 'Error to store avatar on server.',
+          message: `Error to store avatar on server: ${err}`,
           name: 'error',
           status: 500
         })
@@ -48,6 +62,8 @@ class UserController {
   }
 
   async register({ request, response }) {
+    let image = null
+
     const data = this.getRequestData(request)
     data.is_admin = 'false'
 
@@ -59,18 +75,21 @@ class UserController {
 
     if (avatarImage) {
       // lê a imagem
-      const image = await ImageLib.readImage(avatarImage.tmpPath)
-      if (!image) {
+      try {
+        image = await ImageLib.readImage(avatarImage.tmpPath)
+      } catch (err) {
         return response.status(400).json({
-          message: 'Error to read avatar image.',
+          message: `Error to read avatar image: ${err}`,
           name: 'error',
           status: 400
         })
       }
       // salva a imagem em um diretório
-      if (!(await this.saveAvatar(image, data.avatar))) {
+      try {
+        await this.saveAvatar(image, data.avatar)
+      } catch (err) {
         return response.status(500).json({
-          message: 'Error to store avatar on server.',
+          message: `Error to store avatar on server: ${err}`,
           name: 'error',
           status: 500
         })
@@ -98,6 +117,8 @@ class UserController {
   }
 
   async update({ auth, params, request, response }) {
+    let image = null
+
     const user = await auth.getUser()
     if (!user.is_admin && user.id !== Number(params.id)) {
       return response.status(401).json({
@@ -124,18 +145,21 @@ class UserController {
 
     if (avatarImage) {
       // lê a imagem
-      const image = await ImageLib.readImage(avatarImage.tmpPath)
-      if (!image) {
+      try {
+        image = await ImageLib.readImage(avatarImage.tmpPath)
+      } catch (err) {
         return response.status(400).json({
-          message: 'Error to read avatar image.',
+          message: `Error to read avatar image: ${err}`,
           name: 'error',
           status: 400
         })
       }
       // salva a imagem em um diretório
-      if (!(await this.saveAvatar(image, data.avatar))) {
+      try {
+        await this.saveAvatar(image, data.avatar)
+      } catch (err) {
         return response.status(500).json({
-          message: 'Error to store avatar on server.',
+          message: `Error to store avatar on server: ${err}`,
           name: 'error',
           status: 500
         })
@@ -148,7 +172,7 @@ class UserController {
   async destroy({ auth, params, response }) {
     const user = await auth.getUser()
     if (!user.is_admin) {
-      return response.status(401)
+      return response.status(401).json()
     }
 
     const model = await Model.findOrFail(params.id)
@@ -159,19 +183,9 @@ class UserController {
   async saveAvatar(image, name) {
     // redimenciona e otimiza a imagem
     const imageProcessed = await ImageLib.processImage(image)
-    if (!imageProcessed) {
-      return false
-    }
+
     // salva a imagem no servidor
-    const ImageStored = await ImageLib.storeImage(
-      imageProcessed,
-      TMP_USER,
-      name
-    )
-    if (!ImageStored) {
-      return false
-    }
-    return true
+    await ImageLib.storeImage(imageProcessed, TMP_USER, name)
   }
 
   getRequestData(request) {
@@ -195,10 +209,8 @@ class UserController {
     })
     // gera um nome para a imagem do avatar
     const avatarName = `${new Date().getTime()}.jpg`
-    if (avatar) {
-      data.avatar = avatarName
-      data.avatarImage = avatar
-    }
+    data.avatar = avatarName
+    data.avatarImage = avatar
     return data
   }
 }

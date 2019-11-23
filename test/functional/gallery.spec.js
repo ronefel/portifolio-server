@@ -79,3 +79,11 @@ test('should be able to show the gallery without logged in', async ({
   response.assertStatus(200)
   assert.equal(response.body.name, 'Gallery')
 })
+
+test('should be able to list the galleries without logged in', async ({
+  client
+}) => {
+  const response = await client.get(`/galleries`).end()
+
+  response.assertStatus(200)
+})

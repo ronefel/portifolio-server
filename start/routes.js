@@ -7,6 +7,7 @@ Route.post('/reset', 'ResetPasswordController.store')
 
 Route.get('/avatar/:avatar', 'UserController.avatar')
 Route.get('/galleries/:id', 'GalleryController.show')
+Route.get('/galleries', 'GalleryController.index')
 Route.get('/images/:name', 'PhotoController.show')
 Route.post('/register', 'UserController.register').validator('UserValidator')
 
@@ -17,13 +18,13 @@ Route.group(() => {
     .validator(
       new Map([
         [['users.store'], ['UserValidator']],
-        [['users.update'], ['UpdateUserValidator']]
+        [['users.update'], ['UserValidator']]
       ])
     )
 
   Route.resource('galleries', 'GalleryController')
     .apiOnly()
-    .except('show')
+    .except(['index', 'show'])
 
   Route.resource('photos', 'PhotoController')
     .apiOnly()

@@ -99,23 +99,21 @@ test('admin should be able to update normal user', async ({
     .loginVia(userAdmin, 'jwt')
     .field('name', 'Santos')
     .field('email', 'santos@hotmail.com')
-    .field('password', '12345678')
     .field('is_admin', true)
     .attach('avatar', Helpers.tmpPath('test/avatar.jpg'))
     .end()
-  response.assertStatus(200)
+  response.assertStatus(200, 'Response not 200')
 
   await user.reload()
 
-  assert.equal(user.name, 'Santos')
-  assert.equal(user.email, 'santos@hotmail.com')
-  assert.isTrue(await Hash.verify('12345678', user.password))
+  assert.equal(user.name, 'Santos', 'Name not equal')
+  assert.equal(user.email, 'santos@hotmail.com', 'Email not equal')
   // tem que salvar is_admin como true
-  assert.equal(user.is_admin, 'true')
-  assert.exists(user.avatar)
+  assert.equal(user.is_admin, 'true', 'IsAdmin not equal')
+  assert.exists(user.avatar, 'Avatar not exists')
 
   const getAvatar = await client.get(`/avatar/${user.avatar}`).end()
-  getAvatar.assertStatus(200)
+  getAvatar.assertStatus(200, 'GetAvatar not 200')
   await ImageLib.destroyImage(Helpers.tmpPath('user'), user.avatar)
 })
 
@@ -255,11 +253,17 @@ test('admin should be able to delete user', async ({ assert, client }) => {
     is_admin: false
   })
 
-  const response = await client
+  const response401 = await client
+    .delete(`/users/${userAdmin.id}`)
+    .loginVia(user, 'jwt')
+    .end()
+  response401.assertStatus(401)
+
+  const response204 = await client
     .delete(`/users/${user.id}`)
     .loginVia(userAdmin, 'jwt')
     .end()
-  response.assertStatus(204)
+  response204.assertStatus(204)
 
   const deletedUser = await User.find(user.id)
   assert.isNull(deletedUser)

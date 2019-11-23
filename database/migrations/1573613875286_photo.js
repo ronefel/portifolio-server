@@ -13,7 +13,10 @@ class PhotoSchema extends Schema {
         .inTable('galleries')
         .onDelete('NO ACTION')
         .onUpdate('CASCADE')
-      table.string('name', 100).notNullable()
+      table
+        .string('name', 100)
+        .notNullable()
+        .unique()
       table.timestamp('created_at')
     })
   }

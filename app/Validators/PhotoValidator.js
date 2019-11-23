@@ -6,7 +6,7 @@ class PhotoValidator {
   get rules() {
     return {
       gallery_id: 'required|exists:galleries,id',
-      file: 'file|file_ext:png,jpg,jpeg|file_size:10mb|file_types:image'
+      photo: 'required|file_ext:png,jpg,jpeg|file_size:10mb|file_types:image'
     }
   }
 

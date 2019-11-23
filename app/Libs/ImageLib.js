@@ -1,6 +1,4 @@
-const fs = use('fs')
-const Helpers = use('Helpers')
-const deleteFile = Helpers.promisify(fs.unlink)
+const { pathExists, unlink } = use('fs-extra')
 const Jimp = use('jimp')
 
 class ImageLib {
@@ -9,8 +7,8 @@ class ImageLib {
       .then(img => {
         return img
       })
-      .catch(() => {
-        return false
+      .catch(err => {
+        throw err
       })
     return image
   }
@@ -29,28 +27,26 @@ class ImageLib {
   }
 
   static async storeImage(jimpImage, path, name) {
-    const image = await jimpImage
+    await jimpImage
       .writeAsync(`${path}/${name}`)
       .then(img => {
         return img
       })
-      .catch(() => {
-        return false
+      .catch(err => {
+        throw err
       })
-    if (image) {
-      return name
-    }
-    return false
   }
 
   static async destroyImage(path, name) {
-    return deleteFile(`${path}/${name}`)
-      .then(() => {
-        return true
-      })
-      .catch(() => {
-        return false
-      })
+    if (await pathExists(`${path}/${name}`)) {
+      return unlink(`${path}/${name}`)
+        .then(() => {
+          return true
+        })
+        .catch(err => {
+          throw err
+        })
+    }
   }
 }
 
