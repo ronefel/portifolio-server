@@ -1,5 +1,9 @@
-const { pathExists, unlink } = use('fs-extra')
+const { pathExistsSync, unlink, readdirSync } = use('fs-extra')
 const Jimp = use('jimp')
+const Env = use('Env')
+const Helpers = use('Helpers')
+
+const IMAGES_PATH = Helpers.appRoot(`${Env.get('IMAGES_PATH')}`)
 
 class ImageLib {
   static async readImage(file) {
@@ -26,9 +30,10 @@ class ImageLib {
     return img
   }
 
-  static async storeImage(jimpImage, path, name) {
+  static async storeImage(jimpImage, name, path = null) {
+    const serverPath = path || IMAGES_PATH
     await jimpImage
-      .writeAsync(`${path}/${name}`)
+      .writeAsync(`${serverPath}/${name}`)
       .then(img => {
         return img
       })
@@ -37,9 +42,10 @@ class ImageLib {
       })
   }
 
-  static async destroyImage(path, name) {
-    if (await pathExists(`${path}/${name}`)) {
-      return unlink(`${path}/${name}`)
+  static async destroyImage(name, path = null) {
+    const serverPath = path || IMAGES_PATH
+    if (this.existsImage(`${serverPath}/${name}`)) {
+      return unlink(`${serverPath}/${name}`)
         .then(() => {
           return true
         })
@@ -47,6 +53,22 @@ class ImageLib {
           throw err
         })
     }
+  }
+
+  static existsImage(path) {
+    if (pathExistsSync(path)) {
+      return true
+    }
+    return false
+  }
+
+  static getImagePath(name, path = null) {
+    const serverPath = path || IMAGES_PATH
+    return `${serverPath}/${name}`
+  }
+
+  static listImagesPath() {
+    return readdirSync(IMAGES_PATH)
   }
 }
 

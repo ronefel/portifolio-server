@@ -44,7 +44,7 @@ test('admin should be able to store user', async ({ assert, client }) => {
 
   const getAvatar = await client.get(`/avatar/${newUser.avatar}`).end()
   getAvatar.assertStatus(200)
-  await ImageLib.destroyImage(Helpers.tmpPath('user'), newUser.avatar)
+  await ImageLib.destroyImage(newUser.avatar, Helpers.tmpPath('user'))
 })
 
 test('user should be able to register without login', async ({
@@ -73,7 +73,7 @@ test('user should be able to register without login', async ({
 
   const getAvatar = await client.get(`/avatar/${newUser.avatar}`).end()
   getAvatar.assertStatus(200)
-  await ImageLib.destroyImage(Helpers.tmpPath('user'), newUser.avatar)
+  await ImageLib.destroyImage(newUser.avatar, Helpers.tmpPath('user'))
 })
 
 test('admin should be able to update normal user', async ({
@@ -114,7 +114,7 @@ test('admin should be able to update normal user', async ({
 
   const getAvatar = await client.get(`/avatar/${user.avatar}`).end()
   getAvatar.assertStatus(200, 'GetAvatar not 200')
-  await ImageLib.destroyImage(Helpers.tmpPath('user'), user.avatar)
+  await ImageLib.destroyImage(user.avatar, Helpers.tmpPath('user'))
 })
 
 test('normal user should be able to update only your profile', async ({
@@ -168,7 +168,7 @@ test('normal user should be able to update only your profile', async ({
 
   const getAvatar = await client.get(`/avatar/${user.avatar}`).end()
   getAvatar.assertStatus(200)
-  await ImageLib.destroyImage(Helpers.tmpPath('user'), user.avatar)
+  await ImageLib.destroyImage(user.avatar, Helpers.tmpPath('user'))
 })
 
 test('admin should be able to see other user profile', async ({

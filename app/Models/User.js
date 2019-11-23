@@ -4,8 +4,16 @@ const Model = use('Model')
 /** @type {import('@adonisjs/framework/src/Hash')} */
 const Hash = use('Hash')
 
+/** @type {typeof import('../../Libs/ImageLib')} */
+const ImageLib = use('App/Libs/ImageLib')
+
 /** @type {import('@adonisjs/framework/src/Env')} */
 const Env = use('Env')
+
+/** @type {typeof import('@adonisjs/')} */
+const Helpers = use('Helpers')
+
+const TMP_USER = Helpers.tmpPath('user')
 
 class User extends Model {
   static boot() {
@@ -26,8 +34,18 @@ class User extends Model {
     return ['avatar_url']
   }
 
+  getAvatar() {
+    if (this.avatar && ImageLib.existsImage(`${TMP_USER}/${this.avatar}`)) {
+      return this.avatar
+    }
+    return null
+  }
+
   getAvatarUrl({ avatar }) {
-    return !avatar ? avatar : `${Env.get('APP_URL')}/avatar/${avatar}`
+    if (avatar) {
+      return `${Env.get('APP_URL')}/avatar/${avatar}`
+    }
+    return null
   }
 
   /**

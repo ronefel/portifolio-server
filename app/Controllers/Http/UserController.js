@@ -113,7 +113,7 @@ class UserController {
   }
 
   async avatar({ params, response }) {
-    return response.download(`${TMP_USER}/${params.avatar}`)
+    return response.download(ImageLib.getImagePath(params.avatar, TMP_USER))
   }
 
   async update({ auth, params, request, response }) {
@@ -132,18 +132,16 @@ class UserController {
     if (!user.is_admin) {
       data.is_admin = 'false'
     }
-    const { avatarImage } = data
-    delete data.avatarImage
 
     const model = await Model.findOrFail(params.id)
 
-    // remove o avatar antigo do servidor
-    await ImageLib.destroyImage(TMP_USER, model.avatar)
+    const { avatarImage } = data
+    delete data.avatarImage
 
-    model.merge(data)
-    await model.save()
-
-    if (avatarImage) {
+    // se não enviou um novo avatar
+    if (!avatarImage) {
+      delete data.avatar
+    } else {
       // lê a imagem
       try {
         image = await ImageLib.readImage(avatarImage.tmpPath)
@@ -164,7 +162,12 @@ class UserController {
           status: 500
         })
       }
+      // remove o avatar antigo do servidor
+      await ImageLib.destroyImage(model.avatar, TMP_USER)
     }
+
+    model.merge(data)
+    await model.save()
 
     return model
   }
@@ -176,7 +179,7 @@ class UserController {
     }
 
     const model = await Model.findOrFail(params.id)
-    await ImageLib.destroyImage(TMP_USER, model.avatar)
+    await ImageLib.destroyImage(model.avatar, TMP_USER)
     await model.delete()
   }
 
@@ -185,7 +188,7 @@ class UserController {
     const imageProcessed = await ImageLib.processImage(image)
 
     // salva a imagem no servidor
-    await ImageLib.storeImage(imageProcessed, TMP_USER, name)
+    await ImageLib.storeImage(imageProcessed, name, TMP_USER)
   }
 
   getRequestData(request) {

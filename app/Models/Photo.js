@@ -4,12 +4,8 @@ const Model = use('Model')
 /** @type {typeof import('../../Libs/ImageLib')} */
 const ImageLib = use('App/Libs/ImageLib')
 
-const Helpers = use('Helpers')
-
 /** @type {import('@adonisjs/framework/src/Env')} */
 const Env = use('Env')
-
-const IMAGES_PATH = Helpers.appRoot(`${Env.get('IMAGES_PATH')}`)
 
 class Photo extends Model {
   // static get hidden() {
@@ -29,7 +25,7 @@ class Photo extends Model {
   }
 
   async deletePhoto() {
-    await ImageLib.destroyImage(IMAGES_PATH, this.name)
+    await ImageLib.destroyImage(this.name)
   }
 
   gallery() {

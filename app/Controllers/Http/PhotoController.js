@@ -2,14 +2,7 @@
 const ImageLib = use('App/Libs/ImageLib')
 
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
-const Model = use('App/Models/Photo')
-
-const Helpers = use('Helpers')
-
-/** @type {import('@adonisjs/framework/src/Env')} */
-const Env = use('Env')
-
-const IMAGES_PATH = Helpers.appRoot(`${Env.get('IMAGES_PATH')}`)
+const Photo = use('App/Models/Photo')
 
 class PhotoController {
   async index({ auth, response }) {
@@ -17,8 +10,10 @@ class PhotoController {
     if (!user.is_admin) {
       return response.status(401).json()
     }
-    const models = await Model.all()
-    return models
+    const photos = await Photo.query()
+      .with('gallery')
+      .fetch()
+    return photos
   }
 
   async store({ auth, request, response }) {
@@ -35,18 +30,18 @@ class PhotoController {
     // gera um nome para a imagem
     data.name = `${new Date().getTime()}.jpg`
     // Salva os dados no banco
-    const model = await Model.create(data)
+    const photo = await Photo.create(data)
 
     // pega a imagem da request
-    const photo = request.file('photo', {
+    image = request.file('image', {
       types: ['image'],
       size: '10mb'
     })
 
-    if (photo) {
+    if (image) {
       // lê a imagem
       try {
-        image = await ImageLib.readImage(photo.tmpPath)
+        image = await ImageLib.readImage(image.tmpPath)
       } catch (err) {
         return response.status(400).json({
           message: `Error to read image: ${err}`,
@@ -60,10 +55,10 @@ class PhotoController {
         imageProcessed = await ImageLib.processImage(image)
 
         // salva a imagem no servidor
-        await ImageLib.storeImage(imageProcessed, IMAGES_PATH, data.name)
+        await ImageLib.storeImage(imageProcessed, data.name)
       } catch (err) {
         // remove os dados do banco
-        await model.delete()
+        await photo.delete()
         return response.status(500).json({
           message: `Error to store image on server: ${err}`,
           name: 'error',
@@ -71,11 +66,11 @@ class PhotoController {
         })
       }
     }
-    return model
+    return photo
   }
 
   async show({ params, response }) {
-    return response.download(`${IMAGES_PATH}/${params.name}`)
+    return response.download(ImageLib.getImagePath(params.name))
   }
 
   async destroy({ auth, params, response }) {
@@ -83,9 +78,9 @@ class PhotoController {
     if (!user.is_admin) {
       return response.status(401).json()
     }
-    const model = await Model.findOrFail(params.id)
-    await model.deletePhoto()
-    await model.delete()
+    const photo = await Photo.findOrFail(params.id)
+    await photo.deletePhoto()
+    await photo.delete()
   }
 }
 

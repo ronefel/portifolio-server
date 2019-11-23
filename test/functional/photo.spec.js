@@ -30,7 +30,7 @@ test('only admin should be able to store photo', async ({ assert, client }) => {
     .post('/photos')
     .loginVia(user, 'jwt')
     .field('gallery_id', gallery.id)
-    .attach('photo', Helpers.tmpPath('test/avatar.jpg'))
+    .attach('image', Helpers.tmpPath('test/avatar.jpg'))
     .end()
   response401.assertStatus(401)
 
@@ -38,7 +38,7 @@ test('only admin should be able to store photo', async ({ assert, client }) => {
     .post('/photos')
     .loginVia(userAdmin, 'jwt')
     .field('gallery_id', gallery.id)
-    .attach('photo', Helpers.tmpPath('test/avatar.jpg'))
+    .attach('image', Helpers.tmpPath('test/avatar.jpg'))
     .end()
   response.assertStatus(200)
 
@@ -67,7 +67,7 @@ test('only admin should be able to list photo', async ({ assert, client }) => {
     .post('/photos')
     .loginVia(userAdmin, 'jwt')
     .field('gallery_id', gallery.id)
-    .attach('photo', Helpers.tmpPath('test/avatar.jpg'))
+    .attach('image', Helpers.tmpPath('test/avatar.jpg'))
     .end()
   response.assertStatus(200)
 
@@ -104,7 +104,7 @@ test('normal user should be able to show photos', async ({ client }) => {
     .post('/photos')
     .loginVia(userAdmin, 'jwt')
     .field('gallery_id', gallery.id)
-    .attach('photo', Helpers.tmpPath('test/avatar.jpg'))
+    .attach('image', Helpers.tmpPath('test/avatar.jpg'))
     .end()
   response.assertStatus(200)
 
@@ -135,7 +135,7 @@ test('only admin should be able to destroy photo', async ({ client }) => {
     .post('/photos')
     .loginVia(userAdmin, 'jwt')
     .field('gallery_id', gallery.id)
-    .attach('photo', Helpers.tmpPath('test/avatar.jpg'))
+    .attach('image', Helpers.tmpPath('test/avatar.jpg'))
     .end()
   response.assertStatus(200)
 
