@@ -13,3 +13,5 @@ database/*.sqlite
 images/*
 
 .vscode
+
+public/*
