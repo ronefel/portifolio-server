@@ -1,15 +1,26 @@
 /** @type {import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
-Route.post('authenticate', 'AuthController.authenticate')
-Route.post('/forgot', 'ForgotPasswordController.store')
-Route.post('/reset', 'ResetPasswordController.store')
+Route.post('authenticate', 'AuthController.authenticate').validator(
+  'Authentication'
+)
+Route.post('refreshToken', 'AuthController.refreshToken')
+Route.post('forgot', 'ForgotPasswordController.store').validator(
+  'ForgotPassword'
+)
+Route.post('resetPassword', 'ResetPasswordController.store').validator(
+  'ResetValidator'
+)
+Route.post(
+  'validateResetPasswordToken',
+  'ResetPasswordController.validateResetPasswordToken'
+)
 
-Route.get('/avatar/:avatar', 'UserController.avatar')
-Route.get('/galleries/:id', 'GalleryController.show')
-Route.get('/galleries', 'GalleryController.index')
-Route.get('/images/:name', 'PhotoController.show')
-Route.post('/register', 'UserController.register').validator('UserValidator')
+Route.get('avatar/:avatar', 'UserController.avatar')
+Route.get('galleries/:id', 'GalleryController.show')
+Route.get('galleries', 'GalleryController.index')
+Route.get('images/:name', 'PhotoController.show')
+Route.post('register', 'UserController.register').validator('UserValidator')
 
 // grupo de rotas protegidas
 Route.group(() => {
@@ -30,4 +41,6 @@ Route.group(() => {
     .apiOnly()
     .except(['show', 'update'])
     .validator(new Map([[['photos.store'], ['PhotoValidator']]]))
+
+  Route.post('logout', 'AuthController.logout')
 }).middleware(['auth'])

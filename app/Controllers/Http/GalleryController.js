@@ -27,11 +27,11 @@ class GalleryController {
 
   async destroy({ params }) {
     const gallery = await Gallery.findOrFail(params.id)
-    // const photos = await gallery.photos().fetch()
-    // photos.rows.forEach(async photo => {
-    //   await photo.deletePhoto()
-    //   await photo.delete()
-    // })
+    const photos = await gallery.photos().fetch()
+    photos.rows.forEach(async photo => {
+      await photo.deletePhoto()
+      await photo.delete()
+    })
     await gallery.delete()
   }
 }

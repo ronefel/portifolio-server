@@ -18,13 +18,15 @@ test('should send an email with reset password instructions', async ({
   client
 }) => {
   Mail.fake()
-  const email = 'ronefel@hotmail.com'
+  const emailForgot = 'ronefel@hotmail.com'
 
-  const user = await Factory.model('App/Models/User').create({ email })
+  const user = await Factory.model('App/Models/User').create({
+    email: emailForgot
+  })
 
   const response = await client
     .post('/forgot')
-    .send({ email })
+    .send({ emailForgot })
     .end()
   response.assertStatus(204)
 
@@ -32,7 +34,7 @@ test('should send an email with reset password instructions', async ({
 
   const recentEmail = Mail.pullRecent()
 
-  assert.equal(recentEmail.message.to[0].address, email)
+  assert.equal(recentEmail.message.to[0].address, emailForgot)
 
   assert.include(token.toJSON(), {
     type: 'forgotpassword'
@@ -41,9 +43,11 @@ test('should send an email with reset password instructions', async ({
 })
 
 test('should be able to reset password', async ({ assert, client }) => {
-  const email = 'ronefel@hotmail.com'
+  const emailForgot = 'ronefel@hotmail.com'
 
-  const user = await Factory.model('App/Models/User').create({ email })
+  const user = await Factory.model('App/Models/User').create({
+    email: emailForgot
+  })
   const userToken = await Factory.model('App/Models/Token').make()
 
   await user.tokens().save(userToken)
@@ -66,9 +70,11 @@ test('should be able to reset password', async ({ assert, client }) => {
 test('cannot reset password after 15m of forgot password request', async ({
   client
 }) => {
-  const email = 'ronefel@hotmail.com'
+  const emailForgot = 'ronefel@hotmail.com'
 
-  const user = await Factory.model('App/Models/User').create({ email })
+  const user = await Factory.model('App/Models/User').create({
+    email: emailForgot
+  })
   const userToken = await Factory.model('App/Models/Token').make()
 
   await user.tokens().save(userToken)
