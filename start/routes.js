@@ -21,6 +21,7 @@ Route.get('galleries/:id', 'GalleryController.show')
 Route.get('galleries', 'GalleryController.index')
 Route.get('images/:name', 'PhotoController.show')
 Route.post('register', 'UserController.register').validator('UserValidator')
+Route.get('pages/:name', 'PageController.show')
 
 // grupo de rotas protegidas
 Route.group(() => {
@@ -41,6 +42,16 @@ Route.group(() => {
     .apiOnly()
     .except(['show', 'update'])
     .validator(new Map([[['photos.store'], ['PhotoValidator']]]))
+
+  Route.resource('pages', 'PageController')
+    .apiOnly()
+    .except(['index', 'show'])
+    .validator(
+      new Map([
+        [['pages.store'], ['PageValidator']],
+        [['pages.update'], ['PageValidator']]
+      ])
+    )
 
   Route.post('logout', 'AuthController.logout')
 }).middleware(['auth'])

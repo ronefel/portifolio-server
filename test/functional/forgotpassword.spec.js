@@ -37,7 +37,7 @@ test('should send an email with reset password instructions', async ({
   assert.equal(recentEmail.message.to[0].address, emailForgot)
 
   assert.include(token.toJSON(), {
-    type: 'forgotpassword'
+    type: 'forgot_password'
   })
   Mail.restore()
 })
@@ -53,7 +53,7 @@ test('should be able to reset password', async ({ assert, client }) => {
   await user.tokens().save(userToken)
 
   const response = await client
-    .post('/reset')
+    .post('/resetPassword')
     .send({
       token: userToken.token,
       password: '123456'
@@ -88,7 +88,7 @@ test('cannot reset password after 15m of forgot password request', async ({
   await userToken.reload()
 
   const response = await client
-    .post('/reset')
+    .post('/resetPassword')
     .send({
       token: userToken.token,
       password: '123456'
