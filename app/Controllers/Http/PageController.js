@@ -37,6 +37,10 @@ class PageController {
    */
   async show({ params }) {
     const page = await Page.findBy('name', params.name)
+    // se page e page.value for diferente de null
+    if (page && !page.value) {
+      page.value = ''
+    }
     return page
   }
 

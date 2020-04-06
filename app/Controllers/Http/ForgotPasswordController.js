@@ -30,7 +30,7 @@ class ForgotPasswordController {
         type: 'forgot_password'
       })
 
-      const resetUrl = `${Env.get('FRONT_URL')}/reset?token=${token}`
+      const resetUrl = `${Env.get('FRONT_URL')}/#/reset/${token}`
 
       Mail.send(
         'emails.forgotpassword',
