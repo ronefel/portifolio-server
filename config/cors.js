@@ -18,8 +18,6 @@ module.exports = {
   |
   */
   origin: currentOrigin => {
-    // eslint-disable-next-line no-console
-    console.log(currentOrigin)
     return currentOrigin === Env.get('FRONT_URL', 'http://localhost:8080')
   },
 
