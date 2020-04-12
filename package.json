@@ -1,8 +1,8 @@
 {
-  "name": "adonis-api-app",
+  "name": "kryscardoso-api-app",
   "version": "4.1.0",
   "adonis-version": "4.1.0",
-  "description": "Adonisjs boilerplate for API server with pre-configured JWT",
+  "description": "Krys Cardoso API",
   "main": "index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node server.js",

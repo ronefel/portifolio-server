@@ -1,3 +1,6 @@
+/** @type {import('@adonisjs/framework/src/Env')} */
+const Env = use('Env')
+
 module.exports = {
   /*
   |--------------------------------------------------------------------------
@@ -14,7 +17,11 @@ module.exports = {
   | Function - Receives the current origin and should return one of the above values.
   |
   */
-  origin: true,
+  origin: currentOrigin => {
+    // eslint-disable-next-line no-console
+    console.log(currentOrigin)
+    return currentOrigin === Env.get('FRONT_URL', 'http://localhost:8080')
+  },
 
   /*
   |--------------------------------------------------------------------------
